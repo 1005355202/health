@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                            http://www.springframework.org/schema/beans/spring-beans.xsd
+                            http://www.springframework.org/schema/mvc
+                            http://www.springframework.org/schema/mvc/spring-mvc.xsd
+                            http://code.alibabatech.com/schema/dubbo
+                            http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+                            http://www.springframework.org/schema/context
+                            http://www.springframework.org/schema/context/spring-context.xsd
+                            http://www.springframework.org/schema/security
+                            http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <!--包扫描-->
+    <context:component-scan base-package="com.itheima"/>
+
+
+    <!--0.配置匿名访问的资源(不需要受到权限控制的)-->
+    <security:http pattern="/regist.html" security="none"/>
+    <security:http pattern="/login.html" security="none"/>
+    <security:http pattern="/index.html" security="none"/>
+    <security:http pattern="/css/**" security="none"/>
+    <security:http pattern="/img/**" security="none"/>
+
+    <!--1.自动配置
+            auto-config: true 开启自动配置
+            use-expressions: 是否是否表达式 false 不使用 (access="ROLE_ADMIN");  true:使用(hasRole('ROLE_ADMIN'))
+    -->
+    <security:http auto-config="true" use-expressions="true">
+        <!--1.1 配置拦截的资源  pattern:配置拦截的资源的路径(/** 匹配所有); access:拥有什么角色或者权限才可以访问/**(ROLE_ADMIN: 必须需要ROLE_ADMIN角色)-->
+
+        <security:intercept-url pattern="/a.html" access="hasRole('ROLE_USER')"/>
+        <!--isAuthenticated:只要登录就可以访问-->
+        <security:intercept-url pattern="/b.html" access="isAuthenticated()"/>
+        <security:intercept-url pattern="/c.html" access="hasAuthority('add')"/>
+        <security:intercept-url pattern="/d.html" access="hasAuthority('delete')"/>
+        <security:intercept-url pattern="/e.html" access="hasAuthority('update')"/>
+
+        <security:intercept-url pattern="/**" access="hasRole('ROLE_ADMIN')"/>
+
+
+
+
+        <!--1.2配置自定义的页面
+            login-page: 指定登录页面的路径             login-processing-url:指定提交的路径
+            username-parameter:指定用户名提交的name    password-parameter:指定密码提交的name
+            authentication-success-forward-url: 登录成功【转发】的路径
+            authentication-failure-url:登录失败跳转的路径
+
+        -->
+        <security:form-login login-page="/login.html" login-processing-url="/login.do"
+            username-parameter="username" password-parameter="password"
+                             authentication-success-forward-url="/success.html"
+                             authentication-failure-url="/login.html"
+        />
+        <!--1.3 关闭csrf-->
+        <security:csrf disabled="true"/>
+        <!--1.4 配置注销  logout-url:配置注销路径; logout-success-url:退出登录之后跳转的页面; invalidate-session: true清空session(清空登录状态)-->
+        <security:logout logout-url="/logout.do" logout-success-url="/login.html" invalidate-session="true"/>
+
+    </security:http>
+
+    <!--2.配置认证管理器-->
+    <security:authentication-manager>
+        <!--配置认证提供者-->
+        <security:authentication-provider user-service-ref="springSecurityService">
+            <!--配置Service(先写死, 后面写动态会调用数据的)-->
+           <!-- <security:user-service>
+                &lt;!&ndash;name:用户名  password:密码 {noop}不使用加密  authorities:登录成功之后赋予的权限或者角色&ndash;&gt;
+                <security:user name="admin" password="{noop}admin" authorities="ROLE_ADMIN"/>
+            </security:user-service>-->
+            <!--告诉框架 使用指定的加密方式-->
+            <security:password-encoder ref="passwordEncoder"/>
+        </security:authentication-provider>
+    </security:authentication-manager>
+
+    <!--注册SpringSecurityService-->
+    <bean id="springSecurityService" class="com.itheima.security.SpringSecurityService"></bean>
+
+    <!--注册BCryptPasswordEncoder-->
+    <bean id="passwordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"></bean>
+    <!--开启权限注解-->
+    <security:global-method-security pre-post-annotations="enabled"/>
+
+    <mvc:annotation-driven>
+        <mvc:message-converters register-defaults="true">
+            <bean class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+                <property name="supportedMediaTypes" value="application/json"/>
+                <property name="features">
+                    <list>
+                        <value>WriteMapNullValue</value>
+                        <!--日期类型转换 String-Date-->
+                        <value>WriteDateUseDateFormat</value>
+                    </list>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+
+</beans>
