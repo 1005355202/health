@@ -11,6 +11,7 @@ import com.itheima.util.DateUtils;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -203,32 +205,40 @@ public class ReportController {
 
 
     /**
-     * 会员统计
-     *
+     * 通过动态的日期,获取对应的会员数量饼状图
+     * @param dates
      * @return
      */
     @RequestMapping("/getMemberReport")
-    public Result getMemberReport() {
+    public Result getMemberReport(@RequestBody ArrayList<Calendar> dates) {
+        Calendar end = null;
+        int month = 12;
         try {
-            //1.获得List<String> monthsList【一年之内的月份 '2019-01','2019-02','2019-03','2019-04'】
-            List<String> monthsList = new ArrayList<String>();
-            //获得当前时间
-            Calendar calendar = Calendar.getInstance();
-            //时间后退1年(12个月)
-            calendar.add(Calendar.MONTH, -12);
-            //遍历, 每遍历一次+1个月
-            for (int i = 0; i < 12; i++) {
-                calendar.add(Calendar.MONTH, 1);
-                String monthStr = DateUtils.parseDate2String(calendar.getTime(), "yyyy-MM");
-                monthsList.add(monthStr);
+            //不为空
+            if (dates != null && dates.size() > 0) {
+                Calendar start = dates.get(0);
+                end = dates.get(1);
+                int endMonth = end.get(Calendar.MARCH);
+                int endYear = end.get(Calendar.YEAR);
+                int startMonth = start.get(Calendar.MARCH);
+                int startYear = start.get(Calendar.YEAR);
+                month = endYear * 12 + endMonth - (startYear * 12 + startMonth);
+            } else { //为空
+                end = Calendar.getInstance();
             }
-            //2. 查询Service 根据月份 获得会员总人数(累加的)  List<Integer>  memberCount
-            List<Integer> memberCount = memberService.getMemberReport(monthsList);
+            end.add(Calendar.MARCH, -month);
+            List<String> monthList = new ArrayList<>();
+            for (int i = 0; i < month; i++) {
+                end.add(Calendar.MONTH, 1);
+                //得到前面几个月到现在的年月份
+                monthList.add(new SimpleDateFormat("yyyy-MM").format(end.getTime()));
+            }
+            //通过月份去查询对应的会员数量
+            List<Integer> countList = memberService.getMemberReport(monthList);
 
-            //3.再封装到Map
-            Map map = new HashMap();
-            map.put("months", monthsList);
-            map.put("memberCount", memberCount);
+            Map<String, Object> map = new HashMap<>();
+            map.put("months", monthList);
+            map.put("memberCount", countList);
 
             return new Result(true, MessageConstant.GET_MEMBER_NUMBER_REPORT_SUCCESS, map);
         } catch (Exception e) {
