@@ -95,4 +95,13 @@
     <select id="findMemberTotalCount" resultType="int">
         select count(id) from t_member
     </select>
+    <select id="getSex" resultType="map">
+    select count(m.sex) man ,(select count(*) from t_member
+)-count(*) woman
+from  t_member m ,t_member t where m.id = t.id and m.sex = 2
+</select>
+<select id="getAge" resultType="date">
+select birthday  FROM t_member
+
+</select>
 </mapper>

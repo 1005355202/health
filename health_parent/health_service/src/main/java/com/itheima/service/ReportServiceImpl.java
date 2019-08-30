@@ -12,7 +12,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.time.Instant;
+import java.util.*;
 /**
  * @Description:
  * @Author: yp
@@ -87,5 +88,101 @@ public class ReportServiceImpl implements ReportService {
         result.put("thisMonthVisitsNumber", thisMonthVisitsNumber);
         result.put("hotSetmeal", hotSetmeal);
         return result;
+    }
+    @Override
+    public List<Map> getSexandAge() throws Exception {
+      List<Map> mapList = memberDao.getSex();
+
+      //获取单天时间
+        Date today = DateUtils.getToday();
+
+        int Q=0;
+        int W=0;
+        int E=0;
+        int R=0;
+        //获得所有会员生日
+        List<Date> listAge =  memberDao.getAge();
+        List<Integer> list = new ArrayList<>();
+        //传入生日获得年龄
+        for (Date birthDay : listAge) {
+            Calendar cal = Calendar.getInstance();
+
+            if (cal.before(birthDay)) {
+                throw new IllegalArgumentException(
+                        "The birthDay is before Now.It's unbelievable!");
+            }
+            int yearNow = cal.get(Calendar.YEAR);
+            int monthNow = cal.get(Calendar.MONTH);
+            int dayOfMonthNow = cal.get(Calendar.DAY_OF_MONTH);
+            cal.setTime(birthDay);
+
+            int yearBirth = cal.get(Calendar.YEAR);
+            int monthBirth = cal.get(Calendar.MONTH);
+            int dayOfMonthBirth = cal.get(Calendar.DAY_OF_MONTH);
+
+            int age = yearNow - yearBirth;
+
+            if (monthNow <= monthBirth) {
+                if (monthNow == monthBirth) {
+                    if (dayOfMonthNow < dayOfMonthBirth) age--;
+                }else{
+                    age--;
+                }
+            }
+            //获取年龄段个数
+            Map map = new HashMap<>();
+            if (age>=0 && age<=18){
+                Q++;
+            }
+            if (age>=18 && age<=30){
+                W++;
+            }
+            if (age>=30 && age<=45){
+                E++;
+            }
+            if (age>=45 && age<55){
+                R++;
+            }
+
+
+
+
+        }
+
+        list.add(Q);
+        list.add(W);
+
+        list.add(E);
+
+        list.add(R);
+        //把年龄的个数封装到list里面传到controller
+        for (Integer qwe : list) {
+            Map map = new HashMap<>();
+
+            if (qwe==Q){
+                map.put("value" ,qwe);
+                map.put("name","0-18");
+                mapList.add(map);
+            }
+            if (qwe==W ){
+                map.put("value" ,qwe);
+                map.put("name","18-30");
+                mapList.add(map);
+            }
+            if (qwe==E){
+                map.put("value" ,qwe);
+                map.put("name","30-45");
+                mapList.add(map);
+            }
+            if (qwe==R){
+                map.put("value" ,qwe);
+                map.put("name","45以上");
+                mapList.add(map);
+            }
+
+
+        }
+
+        return mapList;
     }
 }

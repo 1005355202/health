@@ -266,4 +266,24 @@ public class ReportController {
 
     }
 
+    //获取年龄和性别的数据
+    @RequestMapping("/getSexandAge")
+    public Result getSexandAge() {
+        try {
+            //调用service获取数据
+      List<Map> mapList =  reportService.getSexandAge();
+            List<String> list = new ArrayList<>();
+
+            for (Map map : mapList) {
+                System.out.println("map = " + map);
+
+
+            }
+            return new Result(true, MessageConstant.ADD_CHECKITEM_SUCCESS,mapList);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Result(false, MessageConstant.ADD_CHECKITEM_FAIL);
+        }
+
+    }
 }
