@@ -43,7 +43,7 @@ public class OrderController {
         }
     }
 
-
+//根据手机号码查询所有预约信息
     @RequestMapping("/submit")
     public Result submit(@RequestBody Map<String,Object> map){
         try {
@@ -65,4 +65,7 @@ public class OrderController {
             return new Result(false, MessageConstant.ORDER_FAIL);
         }
     }
+
+
+
 }

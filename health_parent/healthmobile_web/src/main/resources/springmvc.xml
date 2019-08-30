@@ -42,4 +42,6 @@
     </mvc:annotation-driven>
 
     <import resource="spring-jedis.xml"></import>
+
+        <import resource="spring-security.xml"></import>
 </beans>
