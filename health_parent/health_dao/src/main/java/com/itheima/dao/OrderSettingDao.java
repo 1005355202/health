@@ -1,21 +1,43 @@
 package com.itheima.dao;
 
 import com.itheima.pojo.OrderSetting;
+import org.apache.ibatis.annotations.Delete;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 public interface OrderSettingDao {
-    public void add(OrderSetting orderSetting);
-    //更新可预约人数
-    public void editNumberByOrderDate(OrderSetting orderSetting);
-    //更新已预约人数
-    public void editReservationsByOrderDate(OrderSetting orderSetting);
-    public long findCountByOrderDate(Date orderDate);
-    //根据日期范围查询预约设置信息
-    public List<OrderSetting> getOrderSettingByMonth(Map date);
-    //根据预约日期查询预约设置信息
-    public OrderSetting findByOrderDate(Date orderDate);
+
+    /**
+     * 根据日期查询数量
+     * @param orderDate
+     * @return
+     */
+    long findCountByOrderDate(Date orderDate);
+
+    /**
+     * 更新OrderSetting
+     * @param orderSetting
+     */
+    void editNumberByOrderDate(OrderSetting orderSetting);
+
+    /**
+     * 新增OrderSetting
+     * @param orderSetting
+     */
+    void add(OrderSetting orderSetting);
+
+    /**
+     * 查询当前月份的预约设置
+     * @param map
+     * @return
+     */
+    List<OrderSetting> getOrderSettingByMonth(Map map);
+
+    @Delete("DELETE FROM t_ordersetting WHERE orderDate <=#{date}")
+    void  quDelete(Date date);
+
+    OrderSetting findByOrderDate(Date orderDate);
+
+    void editReservationsByOrderDate(OrderSetting orderSetting);
 }

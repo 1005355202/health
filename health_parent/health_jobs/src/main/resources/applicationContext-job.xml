@@ -16,7 +16,7 @@
     <context:component-scan base-package="com.itheima.jobs"/>
 
     <!-- 注册任务类(需要改成自己的)-->
-    <bean id="jobDemo" class="com.itheima.jobs.ClearImgJob"></bean>
+    <bean id="jobDemo" class="com.itheima.jobs.JobDemo"></bean>
 
     <!-- 注册JobDetail,作用是负责通过反射调用指定的Job -->
     <bean id="jobDetail"
@@ -24,7 +24,7 @@
         <!-- 注入目标对象(需要改成自己的) -->
         <property name="targetObject" ref="jobDemo"/>
         <!-- 注入目标方法 (需要改成自己的)-->
-        <property name="targetMethod" value="clearImg"/>
+        <property name="targetMethod" value="orderSettingDao"/>
     </bean>
     <!-- 注册一个触发器，指定任务触发的时间 -->
     <bean id="myTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
@@ -32,8 +32,9 @@
         <property name="jobDetail" ref="jobDetail"/>
         <!-- 指定触发的时间，基于Cron表达式(需要改成自己的) -->
         <property name="cronExpression">
-            <!--<value>0 0 0 * * ?</value>-->
-            <value>0/5 * * * * ?</value>
+            <!--<value>定时:每月最后一天凌晨2:00</value>-->
+            <!--0 0 2 L 1-12 ? *-->
+            <value>0/10 * * * * ?</value> <!--0/10 * * * * ? 可用来测试:每十秒删除一次-->
         </property>
     </bean>
     <!-- 注册一个统一的调度工厂，通过这个调度工厂调度任务 -->
