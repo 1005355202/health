@@ -1,7 +1,10 @@
 package com.itheima.dao;
 
+import com.itheima.pojo.Menu;
 import com.itheima.pojo.Role;
 
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -16,4 +19,11 @@ public interface RoleDao {
      * @return
      */
     Set<Role> findByUserId(Integer userId);
+
+
+    List<Role> findAll();
+
+    LinkedHashSet<Menu> findMenusByRoleId(Integer roleId);
+
+    Role findByRoleId(Integer id);
 }

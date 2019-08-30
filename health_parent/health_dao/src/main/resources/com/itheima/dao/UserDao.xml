@@ -5,4 +5,76 @@
     <select id="findByUsername" parameterType="String" resultType="User">
         SELECT * FROM t_user WHERE username = #{username}
     </select>
+
+    <insert id="add" parameterType="User" keyProperty="id" useGeneratedKeys="true">
+ 
+        <selectKey resultType="Integer" keyProperty="id" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+
+        insert into t_user(username,password,gender,telephone,remark)
+        values
+        (#{username},#{password},#{gender},#{telephone},#{remark})
+    </insert>
+
+    <insert id="setUserAndRole" parameterType="map">
+
+    INSERT INTO t_user_role(user_id,role_id)
+     VALUES(#{userId},#{roleId})
+
+    </insert>
+
+    <select id="findByConditions" parameterType="string" resultType="User">
+
+        select * from t_user
+        <if test="value != null and value.length > 0">
+            where username = #{value} or gender = #{value} or telephone = #{value}
+        </if>
+
+    </select>
+
+
+    <select id="findByUserId" parameterType="integer" resultType="User">
+
+        SELECT * FROM t_user WHERE id = #{id}
+
+    </select>
+
+    <select id="findRolesByUserId" parameterType="integer" resultType="integer">
+
+          SELECT role_id FROM t_user_role WHERE user_id = #{id}
+
+    </select>
+
+
+    <update id="edit" parameterType="User">
+        update t_user
+        <set>
+            <if test="username != null">
+                username = #{username},
+            </if>
+            <if test="password != null">
+                password = #{password},
+            </if>
+            <if test="gender != null">
+                gender = #{gender},
+            </if>
+            <if test="telephone != null">
+                telephone = #{telephone},
+            </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteRoleIdsByUserId" parameterType="integer">
+        DELETE FROM t_user_role WHERE user_id = #{id}
+    </delete>
+
+    <delete id="deleteUserByUserId" parameterType="integer">
+        DELETE FROM t_user WHERE id = #{id}
+    </delete>
+
 </mapper>
