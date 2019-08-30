@@ -26,7 +26,7 @@ public class CheckGroupController {
 
 
     /**
-     * 查询所有的检查组
+     * 查询所有
      * @return
      */
     @RequestMapping("/findAll")
