@@ -5,4 +5,20 @@
     <select id="findByUserId" parameterType="Integer" resultType="Role">
         SELECT * FROM t_role WHERE id in (SELECT role_id FROM t_user_role WHERE user_id =#{userId})
     </select>
+
+    <select id="findAll" resultType="role">
+        SELECT * FROM t_role
+    </select>
+
+    <select id="findMenusByRoleId" parameterType="Integer" resultType="Menu">
+
+    SELECT * FROM t_menu WHERE id IN (SELECT menu_id FROM t_role_menu WHERE role_id = #{roleId})
+    </select>
+
+    <select id="findByRoleId" parameterType="Integer" resultType="role">
+        SELECT * FROM t_menu WHERE id = #{id}
+    </select>
+
+
+
 </mapper>
